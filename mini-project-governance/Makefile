@@ -1,43 +1,60 @@
-CC = gcc
-CFLAGS = -std=c99 -Wall -Wextra -pedantic -O2
-LDFLAGS = -lm
+CC      = gcc
+CFLAGS  = -std=c99 -Wall -Wextra -pedantic -Iinclude
+AR      = ar
+ARFLAGS = rcs
 
-SRCS = agile_scrum.c kanban_board.c project_tracker.c okr_tracker.c retrospective.c
-OBJS = $(SRCS:.c=.o)
-EXAMPLES = example_agile_scrum example_kanban example_okr
-DEMOS = demo_scrum demo_kanban_retro
-TARGETS = $(EXAMPLES) $(DEMOS)
+SRCDIR  = src
+INCDIR  = include
+EXDIR   = examples
+DEMODIR = demos
+TESTDIR = tests
+BUILDD  = build
 
-.PHONY: all clean run_examples run_demos
+SRCS    = $(SRCDIR)/gov_scrum.c $(SRCDIR)/gov_kanban.c $(SRCDIR)/gov_okr.c $(SRCDIR)/gov_tracker.c $(SRCDIR)/gov_velocity.c $(SRCDIR)/gov_retro.c $(SRCDIR)/gov_governance.c
+OBJS    = $(SRCS:$(SRCDIR)/%.c=$(BUILDD)/%.o)
+LIB     = $(BUILDD)/libmini-project-governance.a
 
-all: $(TARGETS)
+EXAMPLES_SRC = $(EXDIR)/example1_scrum_sprint.c $(EXDIR)/example2_kanban_okr.c $(EXDIR)/example3_retro_velocity.c
+EXAMPLES_BIN = $(EXAMPLES_SRC:$(EXDIR)/%.c=$(BUILDD)/%)
 
-demo_scrum: demo_scrum.c agile_scrum.o project_tracker.o okr_tracker.o kanban_board.o retrospective.o
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+TEST_SRC = $(TESTDIR)/test_governance.c
+TEST_BIN = $(BUILDD)/test_governance.exe
 
-demo_kanban_retro: demo_kanban_retro.c kanban_board.o retrospective.o project_tracker.o agile_scrum.o okr_tracker.o
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+.PHONY: all lib examples test clean rebuild
 
-example_agile_scrum: example_agile_scrum.c agile_scrum.o
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+all: lib examples
 
-example_kanban: example_kanban.c kanban_board.o
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+lib: $(LIB)
 
-example_okr: example_okr.c okr_tracker.o
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+$(BUILDD):
+	@mkdir -p $(BUILDD)
 
-%.o: %.c %.h
+$(BUILDD)/%.o: $(SRCDIR)/%.c | $(BUILDD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(LIB): $(OBJS)
+	$(AR) $(ARFLAGS) $@ $^
+
+$(BUILDD)/example1_scrum_sprint: $(EXDIR)/example1_scrum_sprint.c $(LIB) | $(BUILDD)
+	$(CC) $(CFLAGS) $< -L$(BUILDD) -lmini-project-governance -lm -o $@
+
+$(BUILDD)/example2_kanban_okr: $(EXDIR)/example2_kanban_okr.c $(LIB) | $(BUILDD)
+	$(CC) $(CFLAGS) $< -L$(BUILDD) -lmini-project-governance -lm -o $@
+
+$(BUILDD)/example3_retro_velocity: $(EXDIR)/example3_retro_velocity.c $(LIB) | $(BUILDD)
+	$(CC) $(CFLAGS) $< -L$(BUILDD) -lmini-project-governance -lm -o $@
+
+$(TEST_BIN): $(TEST_SRC) $(LIB) | $(BUILDD)
+	$(CC) $(CFLAGS) $< -L$(BUILDD) -lmini-project-governance -lm -o $@
+
+examples: $(EXAMPLES_BIN)
+
+test: $(TEST_BIN)
+	@echo Running tests...
+	@$(TEST_BIN)
+	@echo Tests complete.
+
 clean:
-	del /f /q *.o *.exe $(EXAMPLES:=.exe) $(DEMOS:=.exe) 2>nul || rm -f *.o $(EXAMPLES) $(DEMOS)
+	@rm -rf $(BUILDD)
 
-run_examples: $(EXAMPLES)
-	./example_agile_scrum
-	./example_kanban
-	./example_okr
-
-run_demos: $(DEMOS)
-	./demo_scrum
-	./demo_kanban_retro
+rebuild: clean all

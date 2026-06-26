@@ -1,27 +1,46 @@
 # Course Alignment — Project Governance
 
-## Academic Courses
+## MIT — 6.824 Distributed Systems
+- Team coordination patterns → Scrum team roles
+- Consensus protocols → Sprint planning agreement
+- Replication → OKR alignment cascading
 
-| Course | Institution | Topics Covered |
-|--------|------------|----------------|
-| 15-413 — Software Engineering Practicum | CMU | Project charters, risk management, governance |
-| CSE 403 — Software Engineering | UW | Stakeholder analysis, project planning |
-| EM.427 — Project Management | MIT | Risk registers, compliance, stage gates |
-| MS&E 274 — Dynamic Entrepreneurial Strategy | Stanford | Decision analysis, stakeholder alignment |
-| CS 5150 — Software Engineering | Cornell | Project governance, quality gates |
+## Stanford — CS 144 Networking
+- Flow control → WIP limits (Little's Law)
+- Congestion control → Kanban bottleneck detection
+- Buffer management → Cumulative flow diagrams
 
-## Industry References
+## Berkeley — CS 162 Operating Systems
+- Process lifecycle → Sprint state machine
+- Scheduling → WSJF prioritization
+- Deadlock detection → Dependency resolution
 
-- **PMBOK Guide** (PMI) — Project charter, risk management, stakeholder engagement
-- **PRINCE2** — Stage gates, decision logs, compliance tracking
-- **Risk Management Framework** (NIST SP 800-37) — Risk assessment, mitigation
-- **Architecture Decision Records** (ADR) — Decision logging format
-- **RACI Matrix** — Responsible, Accountable, Consulted, Informed assignments
+## CMU — 15-410 Operating Systems
+- Resource allocation → Sprint capacity planning
+- Synchronization → Workflow transition validation
+- Performance monitoring → Velocity profiling
 
-## Module Coverage
+## UT Austin — CS 380D Distributed Systems
+- Distributed agreement → Sprint planning consensus
+- Failure detection → Risk management
+- State machine replication → Workflow engine
 
-1. **Project Charter** — Objectives, constraints, scope in/out, budget/schedule tracking
-2. **Risk Registry** — PxI matrix, risk scoring, mitigation, exposure vs appetite
-3. **Decision Log** — ADR-style with options, pros/cons, chosen option tracking
-4. **Stakeholder Map** — Power/interest grid, key stakeholder identification, RACI matrix
-5. **Compliance Plan** — Stage gates with required/optional checks, audit trail
+## ETH — 263-3501 Parallel Programming
+- Work stealing → Kanban pull system
+- Load balancing → WIP distribution
+- Throughput optimization → Little's Law verification
+
+## Cambridge — Part II Concurrent Systems
+- State machine design → Workflow engine
+- Temporal logic → Sprint state validation
+- Model checking → Transition rule verification
+
+## 清华 — 软件工程
+- 需求工程 → Product backlog management
+- 项目管理 → Sprint planning and tracking
+- 质量保证 → Definition of Done, burndown tracking
+
+## Georgia Tech — CS 6210 Advanced OS
+- Resource scheduling → Sprint capacity planning
+- QoS guarantees → Class of Service (Kanban)
+- Performance isolation → WIP limits

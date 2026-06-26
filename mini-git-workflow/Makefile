@@ -1,47 +1,68 @@
-CC       = gcc
-CFLAGS   = -std=c99 -Wall -Wextra -pedantic -g
-LDFLAGS  =
+CC = gcc
+CFLAGS = -Wall -Wextra -O2 -I include
+LDFLAGS = -Wl,--stack,16777216
+OUTDIR = bin
+EXAMPLEDIR = $(OUTDIR)/examples
+SRCDIR = src
 
-SRCS     = git_internals.c branching_models.c merge_rebase.c pr_review.c conventional_commits.c
-OBJS     = $(SRCS:.c=.o)
+SRCS = $(SRCDIR)/git_dag.c $(SRCDIR)/git_branch.c $(SRCDIR)/git_merge.c $(SRCDIR)/git_commit.c $(SRCDIR)/git_pr.c $(SRCDIR)/git_ci.c
+OBJS = $(OUTDIR)/git_dag.o $(OUTDIR)/git_branch.o $(OUTDIR)/git_merge.o $(OUTDIR)/git_commit.o $(OUTDIR)/git_pr.o $(OUTDIR)/git_ci.o
+TEST_SRC = tests/test_git.c
+TEST_BIN = $(OUTDIR)/test_git.exe
 
-EXAMPLES = example_basic_git_workflow example_conventional_commits example_rebase_flow
-DEMOS    = demo_git_flow demo_trunk_based
-DOCS     = doc_git_internals doc_branching_strategies
+all: $(OBJS) examples test
 
-EXE      = $(EXAMPLES) $(DEMOS) $(DOCS)
+$(OUTDIR)/git_dag.o: $(SRCDIR)/git_dag.c include/git_dag.h
+	@mkdir -p $(OUTDIR)
+	$(CC) $(CFLAGS) -c "$(SRCDIR)/git_dag.c" -o "$(OUTDIR)/git_dag.o"
 
-.PHONY: all clean examples demos docs
+$(OUTDIR)/git_branch.o: $(SRCDIR)/git_branch.c include/git_branch.h include/git_dag.h
+	@mkdir -p $(OUTDIR)
+	$(CC) $(CFLAGS) -c "$(SRCDIR)/git_branch.c" -o "$(OUTDIR)/git_branch.o"
 
-all: examples demos docs
+$(OUTDIR)/git_merge.o: $(SRCDIR)/git_merge.c include/git_merge.h include/git_dag.h
+	@mkdir -p $(OUTDIR)
+	$(CC) $(CFLAGS) -c "$(SRCDIR)/git_merge.c" -o "$(OUTDIR)/git_merge.o"
 
-examples: $(EXAMPLES)
-demos: $(DEMOS)
-docs: $(DOCS)
+$(OUTDIR)/git_commit.o: $(SRCDIR)/git_commit.c include/git_commit.h
+	@mkdir -p $(OUTDIR)
+	$(CC) $(CFLAGS) -c "$(SRCDIR)/git_commit.c" -o "$(OUTDIR)/git_commit.o"
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(OUTDIR)/git_pr.o: $(SRCDIR)/git_pr.c include/git_pr.h
+	@mkdir -p $(OUTDIR)
+	$(CC) $(CFLAGS) -c "$(SRCDIR)/git_pr.c" -o "$(OUTDIR)/git_pr.o"
 
-example_basic_git_workflow: example_basic_git_workflow.c $(OBJS)
-	$(CC) $(CFLAGS) $< $(OBJS) -o $@ $(LDFLAGS)
+$(OUTDIR)/git_ci.o: $(SRCDIR)/git_ci.c include/git_ci.h include/git_commit.h
+	@mkdir -p $(OUTDIR)
+	$(CC) $(CFLAGS) -c "$(SRCDIR)/git_ci.c" -o "$(OUTDIR)/git_ci.o"
 
-example_conventional_commits: example_conventional_commits.c $(OBJS)
-	$(CC) $(CFLAGS) $< $(OBJS) -o $@ $(LDFLAGS)
+test: $(TEST_BIN)
+	./$(TEST_BIN)
 
-example_rebase_flow: example_rebase_flow.c $(OBJS)
-	$(CC) $(CFLAGS) $< $(OBJS) -o $@ $(LDFLAGS)
+$(TEST_BIN): $(TEST_SRC) $(OBJS)
+	@mkdir -p $(OUTDIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) "$(TEST_SRC)" $(OBJS) -o "$(TEST_BIN)"
 
-demo_git_flow: demo_git_flow.c $(OBJS)
-	$(CC) $(CFLAGS) $< $(OBJS) -o $@ $(LDFLAGS)
+examples: example_git_flow example_trunk_based example_conventional_commits
 
-demo_trunk_based: demo_trunk_based.c $(OBJS)
-	$(CC) $(CFLAGS) $< $(OBJS) -o $@ $(LDFLAGS)
+example_git_flow: $(OBJS)
+	@mkdir -p $(EXAMPLEDIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) "examples/example_git_flow.c" $(OBJS) -o "$(EXAMPLEDIR)/example_git_flow.exe"
 
-doc_git_internals: doc_git_internals.c $(OBJS)
-	$(CC) $(CFLAGS) $< $(OBJS) -o $@ $(LDFLAGS)
+example_trunk_based: $(OBJS)
+	@mkdir -p $(EXAMPLEDIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) "examples/example_trunk_based.c" $(OBJS) -o "$(EXAMPLEDIR)/example_trunk_based.exe"
 
-doc_branching_strategies: doc_branching_strategies.c $(OBJS)
-	$(CC) $(CFLAGS) $< $(OBJS) -o $@ $(LDFLAGS)
+example_conventional_commits: $(OBJS)
+	@mkdir -p $(EXAMPLEDIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) "examples/example_conventional_commits.c" $(OBJS) -o "$(EXAMPLEDIR)/example_conventional_commits.exe"
 
 clean:
-	del /q *.o *.exe $(EXE) 2>nul || rm -f *.o $(OBJS) $(EXE)
+	rm -rf "$(OUTDIR)"
+
+rebuild: clean all
+
+debug: CFLAGS = -Wall -Wextra -g -O0 -I include
+debug: all
+
+.PHONY: all test examples clean rebuild debug example_git_flow example_trunk_based example_conventional_commits
